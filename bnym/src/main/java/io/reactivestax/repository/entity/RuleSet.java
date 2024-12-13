@@ -2,12 +2,16 @@ package io.reactivestax.repository.entity;
 
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Builder
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "rule_set")
 public class RuleSet {
 
@@ -15,9 +19,11 @@ public class RuleSet {
     @GeneratedValue(strategy =  GenerationType.IDENTITY)
     private Long id;
 
-    private String leftNode;
+    private int leftNode;
 
-    private String rightNode;
+    private int rightNode;
+
+    private String ruleType;
 
     private String value;
 
