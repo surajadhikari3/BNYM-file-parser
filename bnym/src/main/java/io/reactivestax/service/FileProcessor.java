@@ -24,31 +24,45 @@ public class FileProcessor {
             String key = dataSet.substring(0, 2);
             String value = dataSet.substring(2);
             if (checkNodeType(key)) {
-                RuleSet build = RuleSet.builder()
-                        .leftNode(atomicCounter.incrementAndGet())
-                        .rightNode(atomicCounter.incrementAndGet())
-                        .ruleType(key)
-                        .value(value)
-                        .build();
-                ruleSetList.add(
-                        build
-                );
+                if (Objects.equals(key, "07")) {
+                    popAndAddToList();
+                }
+                RuleSet build = getRuleSet(key, value);
+                ruleSetList.add(build);
                 System.out.println("build" + build);
             } else{
                 if(!nodeProcess.isEmpty() && (Objects.equals(key, nodeProcess.peek().getRuleType()) || Integer.parseInt(key) < Integer.parseInt(nodeProcess.peek().getRuleType()))){
-                    RuleSet popElement = nodeProcess.pop();
-                    popElement.setRightNode(atomicCounter.incrementAndGet());
-                    ruleSetList.add(popElement);
+                    popAndAddToList();
                     buildStackElement(key, value);
                 } else{
                     buildStackElement(key, value);
                 }
             }
         }
+        while (!nodeProcess.isEmpty()){
+            popAndAddToList();
+        }
+
+        System.out.println("Stack size" + nodeProcess.size());
+        System.out.println("stack trace" + nodeProcess);
         System.out.println("Element size" + ruleSetList.size());
-//        System.out.println("list element" + ruleSetList + "\n");
-        List<RuleSet> collect = ruleSetList.stream().sorted(Comparator.comparing(RuleSet::getRuleType)).toList();
+        List<RuleSet> collect = ruleSetList.stream().sorted(Comparator.comparing(RuleSet::getLeftNode)).toList();
         collect.forEach(System.out::println);
+    }
+
+    private void popAndAddToList() {
+        RuleSet popElement = nodeProcess.pop();
+        popElement.setRightNode(atomicCounter.incrementAndGet());
+        ruleSetList.add(popElement);
+    }
+
+    private RuleSet getRuleSet(String key, String value) {
+        return RuleSet.builder()
+                .leftNode(atomicCounter.incrementAndGet())
+                .rightNode(atomicCounter.incrementAndGet())
+                .ruleType(key)
+                .value(value)
+                .build();
     }
 
     private void buildStackElement(String key, String value) {
@@ -63,7 +77,7 @@ public class FileProcessor {
 
 
     public boolean checkNodeType(String key) {
-        return Objects.equals(key, "02") || Objects.equals(key, "05") || Objects.equals(key, "06") || Objects.equals(key, "07");
+        return Objects.equals(key, "02") || Objects.equals(key, "05") || Objects.equals(key, "06") ||  Objects.equals(key, "07");
     }
 
     public int trackingRightNode(String key){
