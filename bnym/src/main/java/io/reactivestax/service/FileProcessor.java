@@ -1,22 +1,21 @@
 package io.reactivestax.service;
 
 import io.reactivestax.repository.entity.RuleSet;
+import io.reactivestax.utility.HibernateUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Session;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 public class FileProcessor {
 
-    private final  Stack<RuleSet> nodeProcess = new Stack<>();
+    private final Stack<RuleSet> nodeProcess = new Stack<>();
     private final AtomicInteger atomicCounter = new AtomicInteger();
     private final List<RuleSet> ruleSetList = new ArrayList<>();
 
     public void processFile(List<String> ruleValueSet) {
-
-
         for (String dataSet : ruleValueSet) {
             String key = dataSet.substring(0, 2);
             String value = dataSet.substring(2);
@@ -26,25 +25,33 @@ public class FileProcessor {
                 }
                 RuleSet build = getRuleSet(key, value);
                 ruleSetList.add(build);
-                System.out.println("build" + build);
-            } else{
-                if(!nodeProcess.isEmpty() && (Objects.equals(key, nodeProcess.peek().getRuleType()) || Integer.parseInt(key) < Integer.parseInt(nodeProcess.peek().getRuleType()))){
+                log.info("build : {}", build);
+            } else {
+                if (!nodeProcess.isEmpty() && (Objects.equals(key, nodeProcess.peek().getRuleType()) || Integer.parseInt(key) < Integer.parseInt(nodeProcess.peek().getRuleType()))) {
                     popAndAddToList();
                     buildStackElement(key, value);
-                } else{
+                } else {
                     buildStackElement(key, value);
                 }
             }
         }
-        while (!nodeProcess.isEmpty()){
+        while (!nodeProcess.isEmpty()) {
             popAndAddToList();
         }
 
-        System.out.println("Stack size" + nodeProcess.size());
-        System.out.println("stack trace" + nodeProcess);
-        System.out.println("Element size" + ruleSetList.size());
+        log.info("Stack size {}", nodeProcess.size());
+        log.info("stack trace {}", nodeProcess);
+        log.info("Element size {}", ruleSetList.size());
+        insertIntoDb();
+
+    }
+
+    private void insertIntoDb() {
         List<RuleSet> collect = ruleSetList.stream().sorted(Comparator.comparing(RuleSet::getLeftNode)).toList();
-        collect.forEach(System.out::println);
+        Session session = HibernateUtil.getInstance().getConnection();
+        session.beginTransaction();
+        collect.forEach(session::persist);
+        session.getTransaction().commit();
     }
 
     private void popAndAddToList() {
@@ -72,10 +79,7 @@ public class FileProcessor {
         nodeProcess.push(tempData);
     }
 
-
     public boolean checkNodeType(String key) {
-        return Objects.equals(key, "02") || Objects.equals(key, "05") || Objects.equals(key, "06") ||  Objects.equals(key, "07");
+        return Objects.equals(key, "02") || Objects.equals(key, "05") || Objects.equals(key, "06") || Objects.equals(key, "07");
     }
-
-
 }
