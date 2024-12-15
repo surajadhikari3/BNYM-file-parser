@@ -21,31 +21,32 @@ public class FileReader {
     final AtomicInteger counter = new AtomicInteger();
     final List<String> lines = new ArrayList<>();
 
-    public void readFile(String filePath) throws IOException {
+    public List<String> readFile(String filePath) throws IOException {
         try (InputStream inputStream = Utility.getResourceAsStream(ApplicationPropertiesUtils.class, filePath);
              BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream))) {
             String line;
             while ((line = bufferedReader.readLine()) != null) {
                 lines.add(line.trim());
             }
-            parseInProperFormat();
+//            parseInProperFormat();
         }
+        return lines;
     }
 
-    public Map<String, String> parseInProperFormat() {
-        lines.forEach(data -> {
-            if (data.length() > 2) {
-                String previousNode = null;
-                if (counter.get() > 0) {
-                    previousNode = lines.get(counter.get() - 1).substring(0, 2);
-                }
-                String key = counter.get() + ":" + data.substring(0, 2);
-                String value = data.substring(2) + ":" + previousNode;
-                ruleValueSet.put(key, value);
-                System.out.println("key--value " + key + ":" + value);
-                counter.incrementAndGet();
-            }
-        });
-        return ruleValueSet;
-    }
+//    public Map<String, String> parseInProperFormat() {
+//        lines.forEach(data -> {
+//            if (data.length() > 2) {
+//                String previousNode = null;
+//                if (counter.get() > 0) {
+//                    previousNode = lines.get(counter.get() - 1).substring(0, 2);
+//                }
+//                String key = counter.get() + ":" + data.substring(0, 2);
+//                String value = data.substring(2) + ":" + previousNode;
+//                ruleValueSet.put(key, value);
+//                System.out.println("key--value " + key + ":" + value);
+//                counter.incrementAndGet();
+//            }
+//        });
+//        return ruleValueSet;
+//    }
 }
