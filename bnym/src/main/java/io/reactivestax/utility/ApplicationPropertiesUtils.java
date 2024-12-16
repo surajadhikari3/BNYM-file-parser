@@ -14,8 +14,6 @@ public class ApplicationPropertiesUtils {
     @Setter
     private static String applicationResource = DEFAULT_APPLICATION_PROPERTIES;
 
-
-
     public static String readFromApplicationPropertiesStringFormat(String propertyName) {
         Properties properties = new Properties();
 
@@ -26,7 +24,6 @@ public class ApplicationPropertiesUtils {
             properties.load(inputStream);
             return properties.getProperty(propertyName);
         } catch (IOException e) {
-//            log.error(e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
     }

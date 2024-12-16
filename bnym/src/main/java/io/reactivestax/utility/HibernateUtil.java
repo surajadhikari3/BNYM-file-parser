@@ -52,10 +52,6 @@ public class HibernateUtil {
         return instance;
     }
 
-    public void startTransaction() {
-        getConnection().beginTransaction();
-    }
-
 
     public Session getConnection() {
         Session session = threadLocalSession.get();
@@ -66,21 +62,4 @@ public class HibernateUtil {
         return session;
     }
 
-    public void closeConnection() {
-        Session session = threadLocalSession.get();
-        if (session != null) {
-            session.close();
-            threadLocalSession.remove();
-        }
-    }
-
-    public void commitTransaction() {
-        getConnection().getTransaction().commit();
-        closeConnection();
-    }
-
-    public void rollbackTransaction() {
-        getConnection().getTransaction().rollback();
-        closeConnection();
-    }
 }
