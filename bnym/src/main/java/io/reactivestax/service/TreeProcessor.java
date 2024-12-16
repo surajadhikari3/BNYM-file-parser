@@ -9,7 +9,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
-public class FileProcessor {
+public class TreeProcessor {
 
     private final Stack<RuleSet> nodeProcess = new Stack<>();
     private final AtomicInteger atomicCounter = new AtomicInteger();
@@ -19,8 +19,8 @@ public class FileProcessor {
         for (String dataSet : ruleValueSet) {
             String key = dataSet.substring(0, 2);
             String value = dataSet.substring(2);
-            if (checkNodeType(key)) {
-                if (Objects.equals(key, "07")) {
+            if (isTerminalNode(key)) {
+                if (Objects.equals(key, "07")) { //since 7 is special case here we have to pop the element from the stack but we don't have to push in stack since it is terminal node push in list
                     popAndAddToList();
                 }
                 RuleSet build = getRuleSet(key, value);
@@ -35,15 +35,16 @@ public class FileProcessor {
                 }
             }
         }
-        while (!nodeProcess.isEmpty()) {
-            popAndAddToList();
-        }
-
-        log.info("Stack size {}", nodeProcess.size());
+        processRemainingStackElement();
         log.info("stack trace {}", nodeProcess);
         log.info("Element size {}", ruleSetList.size());
         insertIntoDb();
+    }
 
+    private void processRemainingStackElement() {
+        while (!nodeProcess.isEmpty()) {
+            popAndAddToList();
+        }
     }
 
     private void insertIntoDb() {
@@ -79,7 +80,7 @@ public class FileProcessor {
         nodeProcess.push(tempData);
     }
 
-    public boolean checkNodeType(String key) {
+    public boolean isTerminalNode(String key) {
         return Objects.equals(key, "02") || Objects.equals(key, "05") || Objects.equals(key, "06") || Objects.equals(key, "07");
     }
 }

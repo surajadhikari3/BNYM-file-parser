@@ -10,8 +10,6 @@ import lombok.NoArgsConstructor;
 @Entity
 @Builder
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 @Table(name = "rule_set")
 public class RuleSet {
 
