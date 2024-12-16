@@ -20,16 +20,21 @@ public class TreeProcessor {
             String key = dataSet.substring(0, 2);
             String value = dataSet.substring(2);
             if (isTerminalNode(key)) {
-                if (Objects.equals(key, "07")) { //since 7 is special case here we have to pop the element from the stack but we don't have to push in stack since it is terminal node push in list
-                    popAndAddToList();
+                if (!nodeProcess.isEmpty() && Objects.equals(key, "07")) { //since 7 is special case here we have to pop the element from the stack but we don't have to push in stack since it is terminal node push in list
+                    while (nodeProcess.peek().getRuleType().equals("04"))
+                        popAndAddToList();
                 }
                 RuleSet build = getRuleSet(key, value);
                 ruleSetList.add(build);
                 log.info("build : {}", build);
             } else {
                 if (!nodeProcess.isEmpty() && (Objects.equals(key, nodeProcess.peek().getRuleType()) || Integer.parseInt(key) < Integer.parseInt(nodeProcess.peek().getRuleType()))) {
+                    while (Integer.parseInt(nodeProcess.peek().getRuleType()) > Integer.parseInt(key)) {
+                        popAndAddToList();
+                    }
                     popAndAddToList();
                     buildStackElement(key, value);
+
                 } else {
                     buildStackElement(key, value);
                 }
